@@ -20,7 +20,7 @@ public Plugin myinfo =
 	name = "[Shavit BASH 2] (Blacky's Anti-Strafehack)",
 	author = "Blacky, edited by carnifex/nimmy/eric",
 	description = "Detects strafe hackers",
-	version = "3.0",
+	version = "3.1",
 	url = "https://github.com/enimmy/bash2"
 };
 
