@@ -2368,7 +2368,7 @@ stock void RecordStartStrafe(int client, int button, int turnDir, const char[] c
 		float mean = GetAverage(array, size);
 		float sd   = StandardDeviation(array, size, mean);
 
-		if(sd < 0.8)
+		if(sd < 0.7)
 		{
 			ProcessLowDev(client, sd, mean, true);
 		}
@@ -2440,7 +2440,7 @@ stock void RecordEndStrafe(int client, int button, int turnDir, const char[] cal
 		float mean = GetAverage(array, size);
 		float sd   = StandardDeviation(array, size, mean);
 
-		if(sd < 0.8)
+		if(sd < 0.7)
 		{
 			ProcessLowDev(client, sd, mean, false);
 		}
@@ -2604,33 +2604,38 @@ void CheckForIllegalMovement(int client, float vel[3], int buttons)
 
 void ProcessGainLog(int client, float gain, float spj, float yawwing)
 {
+	if (spj <= 2.5 && gain <= 87.0 && yawwing == 0.0) {
+		return;
+	}
+
 	char sStyle[32];
 	int style = Shavit_GetBhopStyle(client);
 	Shavit_GetStyleStrings(style, sStyleName, g_sStyleStrings[style].sStyleName, sizeof(stylestrings_t::sStyleName));
 	FormatEx(sStyle, sizeof(sStyle), "%s", g_sStyleStrings[style].sStyleName);
 
 	int color = Green;
-	bool alert = false;
 	char gainAdj[56];
 	Format(gainAdj, sizeof(gainAdj), "High");
 
-	float maxSpj = GetConVarFloat(g_hGainLogSpjBan);
 
-	if(spj >= maxSpj || (yawwing <= 30.0 && gain >= 93.0 && spj >= 1.5) || (gain >= 91.0 && spj >= 3.0) || (gain >= 89.0 && spj >= 4.0))
+	bool ban = spj >= GetConVarFloat(g_hGainLogSpjBan) ||
+				(gain >= 94.0 && yawwing == 0.0 && spj >= 0.4) ||
+				(gain >= 91.0 && spj >= 3.0);
+
+	if(spj >= 4.7 || ban)
 	{
 		color = Red;
 		Format(gainAdj, sizeof(gainAdj), "SUSPICIOUS");
-		alert = true;
+	}	
+	else if((yawwing <= 30.0 && gain >= 93.0 && spj >= 1) || (gain >= 88.0 && spj >= 3.4) || (gain >= 87.0 && spj >= 4.0))
+	{
+		color = Red;
+		Format(gainAdj, sizeof(gainAdj), "SUSPICIOUS");
 	}
-	else if(gain >= 90.0 && spj >= 2.0 || spj >= 3.5)
+	else if((gain >= 90.0 && spj >= 2.0) || spj >= 3.5)
 	{
 		color = Cyan;
 		Format(gainAdj, sizeof(gainAdj), "Insane")
-	}
-	else if(spj <= 1.5 && gain <= 90.0)
-	{
-		Format(gainAdj, sizeof(gainAdj), "Decent")
-		color = Yellow;
 	}
 
 	PrintToAdmins(client, "%s%N %s%s Gains: %s%.2f% %s| SPJ: %s%.1f %s| Turnbinds: %s%.1f% %s| Style:%s %s",
@@ -2640,14 +2645,14 @@ void ProcessGainLog(int client, float gain, float spj, float yawwing)
 	char map[56];
 	GetCurrentMap(map, sizeof(map));
 
-	AnticheatLog(client, alert, "%s Gains: %.2f％ SPJ: %.1f% Turnbinds: %.1f％ Style: %s Map: %s", gainAdj, gain, spj, yawwing, sStyle, map);
+	AnticheatLog(client, ban, "%s Gains: %.2f％ SPJ: %.1f% Turnbinds: %.1f％ Style: %s Map: %s", gainAdj, gain, spj, yawwing, sStyle, map);
 
 	if(g_bInSafeGroup[client])
 	{
 		return;
 	}
 
-	if(alert)
+	if(ban)
 	{
 		AutoBanPlayer(client);
 		AnticheatLog(client, true, "Banned for suspicious gains");
@@ -2675,7 +2680,7 @@ void ProcessLowDev(int client, float dev, float mean, bool start)
 	Shavit_GetStyleStrings(style, sStyleName, g_sStyleStrings[style].sStyleName, sizeof(stylestrings_t::sStyleName));
 	FormatEx(sStyle, sizeof(sStyle), "%s", g_sStyleStrings[style].sStyleName);
 
-	int color = Red;
+	int color = Orange;
 
 	char devAdjective[52];
 
@@ -2696,10 +2701,6 @@ void ProcessLowDev(int client, float dev, float mean, bool start)
 	else if(dev < 0.60)
 	{
 		color = Green;
-	}
-	else if(dev < 0.70)
-	{
-		color = Orange;
 	}
 
 	AnticheatLog(client, alert, "%s %sDev: %.2f Avg: %.2f Style: %s", devAdjective, start ? "Start":"End", dev, mean, sStyle);
