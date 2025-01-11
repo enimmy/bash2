@@ -2615,6 +2615,7 @@ void ProcessGainLog(int client, float gain, float spj, float yawwing)
 
 	int color = Green;
 	char gainAdj[56];
+	bool alert = false;
 	Format(gainAdj, sizeof(gainAdj), "High");
 
 
@@ -2626,11 +2627,13 @@ void ProcessGainLog(int client, float gain, float spj, float yawwing)
 	{
 		color = Red;
 		Format(gainAdj, sizeof(gainAdj), "SUSPICIOUS");
+		alert = true;
 	}	
 	else if((yawwing <= 30.0 && gain >= 93.0 && spj >= 1) || (gain >= 88.0 && spj >= 3.4) || (gain >= 87.0 && spj >= 4.0))
 	{
 		color = Red;
 		Format(gainAdj, sizeof(gainAdj), "SUSPICIOUS");
+		alert = true;
 	}
 	else if((gain >= 90.0 && spj >= 2.0) || spj >= 3.5)
 	{
@@ -2645,7 +2648,7 @@ void ProcessGainLog(int client, float gain, float spj, float yawwing)
 	char map[56];
 	GetCurrentMap(map, sizeof(map));
 
-	AnticheatLog(client, ban, "%s Gains: %.2f％ SPJ: %.1f% Turnbinds: %.1f％ Style: %s Map: %s", gainAdj, gain, spj, yawwing, sStyle, map);
+	AnticheatLog(client, (ban || alert), "%s Gains: %.2f％ SPJ: %.1f% Turnbinds: %.1f％ Style: %s Map: %s", gainAdj, gain, spj, yawwing, sStyle, map);
 
 	if(g_bInSafeGroup[client])
 	{
