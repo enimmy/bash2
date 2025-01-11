@@ -221,6 +221,7 @@ char   g_sBanLength[32];
 ConVar g_hAutoban;
 ConVar g_hAutobanSafeGroup;
 ConVar g_hDevBan;
+ConVar g_hGainLogSpjBan;
 ConVar g_hIdentificalStrafeBan;
 ConVar g_hBashCmdPublic;
 Cookie g_hEnabledCookie;
@@ -273,6 +274,7 @@ public void OnPluginStart()
 	g_hBanIP = CreateConVar("bash_ban_ip", "0", "ban players IP address instead of SteamID", _, true, 0.0, true, 1.0);
 	g_hDevBan = CreateConVar("bash_ban_dev", "0.4", "Offset threshold at which to ban a player", _, true, 0.0, true, 0.8);
 	g_hIdentificalStrafeBan = CreateConVar("bash_ban_identical", "20", "Threshold to ban player for identical sync offsets", _, true, 15.0, true, 50.0);
+	g_hGainLogSpjBan = CreateConVar("bash_ban_spj", "4.7", "Gain log spj threshhold for autobans", _, true, 3.5, false);
 
 	g_hDevBanSafeGroup = CreateConVar("bash_ban_dev_safegroup", "0.35", "Offset threshold at which to ban a player who is in a safe group", _, true, 0.0, true, 0.8);
 	g_hIdentificalStrafeBanSafeGroup = CreateConVar("bash_ban_identical_safegroup", "30", "Threshold to ban player who is in a safe group for identical sync offsets", _, true, 15.0, true, 50.0);
@@ -1783,7 +1785,7 @@ float GetAverage(int[] array, int size, bool countZeroes = true)
 
 	}
 
-	return float(total) / float(size);
+	return (float(total) / float(size));
 }
 
 int g_iRunCmdsPerSecond[MAXPLAYERS + 1];
@@ -2612,7 +2614,9 @@ void ProcessGainLog(int client, float gain, float spj, float yawwing)
 	char gainAdj[56];
 	Format(gainAdj, sizeof(gainAdj), "High");
 
-	if(spj >= 4.7 || (yawwing <= 30.0 && gain >= 93.0 && spj >= 1.5) || (gain >= 90.0 && spj >= 3.0) || (gain >= 88.0 && spj >= 4.0))
+	float maxSpj = GetConVarFloat(g_hGainLogSpjBan);
+
+	if(spj >= maxSpj || (yawwing <= 30.0 && gain >= 93.0 && spj >= 1.5) || (gain >= 91.0 && spj >= 3.0) || (gain >= 89.0 && spj >= 4.0))
 	{
 		color = Red;
 		Format(gainAdj, sizeof(gainAdj), "SUSPICIOUS");
