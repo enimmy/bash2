@@ -3359,7 +3359,7 @@ void SanitizeName(char[] name)
 
 //groupstuff
 
-public int SteamWorks_OnClientGroupStatus(int accountID, int groupID, bool isMember, bool isOfficer)
+public void SteamWorks_OnClientGroupStatus(int accountID, int groupID, bool isMember, bool isOfficer)
 {
 	int client = GetClientFromAccountID(accountID);
 	if (client == -1)
