@@ -840,11 +840,6 @@ public void OnClientPutInServer(int client)
 	GetClientIP(client, g_sIpCache[client], sizeof(g_sIpCache[]));
 
 	g_bAwaitingBan[client] = false;
-}
-
-public void OnClientAuthorized(int client, const char[] auth)
-{
-	GetClientAuthId(client, AuthId_Steam3, g_sSteamIdCache[client], sizeof(g_sSteamIdCache[]));
 
 	g_bInSafeGroup[client] = false;
 
@@ -854,6 +849,10 @@ public void OnClientAuthorized(int client, const char[] auth)
 	SteamWorks_GetUserGroupStatus(client, StringToInt(groupID));
 }
 
+public void OnClientAuthorized(int client, const char[] auth)
+{
+	GetClientAuthId(client, AuthId_Steam3, g_sSteamIdCache[client], sizeof(g_sSteamIdCache[]));
+}
 public void OnClientDisconnect(int client)
 {
 	if (GetSteamAccountID(client) != 0 && g_hPersistentData.BoolValue)
