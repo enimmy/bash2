@@ -2916,6 +2916,11 @@ void UpdateGains(int client, float vel[3], float angles[3], int buttons)
 			float velocity[3];
 			GetEntPropVector(client, Prop_Data, "m_vecAbsVelocity", velocity);
 
+			if(!FloatAbs(velocity[0]) && !FloatAbs(velocity[1]))
+			{
+				return;
+			}
+
 			float fore[3], side[3], wishvel[3], wishdir[3];
 			float wishspeed, wishspd, currentgain;
 
