@@ -840,11 +840,6 @@ public void OnClientPutInServer(int client)
 	GetClientIP(client, g_sIpCache[client], sizeof(g_sIpCache[]));
 
 	g_bAwaitingBan[client] = false;
-}
-
-public void OnClientAuthorized(int client, const char[] auth)
-{
-	GetClientAuthId(client, AuthId_Steam3, g_sSteamIdCache[client], sizeof(g_sSteamIdCache[]));
 
 	g_bInSafeGroup[client] = false;
 
@@ -854,6 +849,10 @@ public void OnClientAuthorized(int client, const char[] auth)
 	SteamWorks_GetUserGroupStatus(client, StringToInt(groupID));
 }
 
+public void OnClientAuthorized(int client, const char[] auth)
+{
+	GetClientAuthId(client, AuthId_Steam3, g_sSteamIdCache[client], sizeof(g_sSteamIdCache[]));
+}
 public void OnClientDisconnect(int client)
 {
 	if (GetSteamAccountID(client) != 0 && g_hPersistentData.BoolValue)
@@ -2916,6 +2915,11 @@ void UpdateGains(int client, float vel[3], float angles[3], int buttons)
 
 			float velocity[3];
 			GetEntPropVector(client, Prop_Data, "m_vecAbsVelocity", velocity);
+
+			if(!FloatAbs(velocity[0]) && !FloatAbs(velocity[1]))
+			{
+				return;
+			}
 
 			float fore[3], side[3], wishvel[3], wishdir[3];
 			float wishspeed, wishspd, currentgain;
